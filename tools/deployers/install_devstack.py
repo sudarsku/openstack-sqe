@@ -46,7 +46,7 @@ def install_openstack(settings_dict, envs=None, verbose=None, prepare=False, for
         run_func = run
 
     with settings(**settings_dict), hide(*verbose), shell_env(**envs):
-        with cd("/root/"):
+        with cd("~/"):
             if proxy:
                 warn_if_fail(put(StringIO('Acquire::http::proxy "http://proxy.esl.cisco.com:8080/";'),
                                  "/etc/apt/apt.conf.d/00proxy",
@@ -69,10 +69,9 @@ def install_openstack(settings_dict, envs=None, verbose=None, prepare=False, for
             if not force and prepare:
                 return True
             elif not force and not prepare:
-                with cd("/root"):
-                    warn_if_fail(run_func("git clone https://github.com/openstack-dev/devstack.git"))
-                    with cd("devstack"):
-                        warn_if_fail(run_func("./stack.sh"))
+                warn_if_fail(run_func("git clone https://github.com/openstack-dev/devstack.git"))
+                with cd("devstack"):
+                    warn_if_fail(run_func("./stack.sh"))
             elif force:
                 shell_envs = ";".join(["export " + k + "=" + v for k, v in envs.iteritems()]) or ""
                 sudo_mode = "sudo " if use_sudo_flag else ''
@@ -83,7 +82,7 @@ def install_openstack(settings_dict, envs=None, verbose=None, prepare=False, for
                         id_rsa=settings_dict['key_filename'],
                         user=settings_dict['user'],
                         host=settings_dict['host_string']))
-                    local("scp -i {id_rsa} {user}@{host}:/root/openrc ./openrc".format(
+                    local("scp -i {id_rsa} {user}@{host}:~/openrc ./openrc".format(
                         id_rsa=settings_dict['key_filename'],
                         user=settings_dict['user'],
                         host=settings_dict['host_string']))
@@ -99,13 +98,13 @@ def install_openstack(settings_dict, envs=None, verbose=None, prepare=False, for
                         gateway=settings_dict['gateway'],
                         sudo_mode=sudo_mode))
                     local('scp -Cp -o "ProxyCommand ssh {user}@{gateway} '
-                          'nc {host} 22" root@{host}:/root/openrc ./openrc'.format(
+                          'nc {host} 22" {user}@{host}:~/openrc ./openrc'.format(
                               user=settings_dict['user'],
                               host=settings_dict['host_string'],
                               gateway=settings_dict['gateway'],
                           ))
-        if exists('/root/openrc'):
-            get('/root/openrc', "./openrc")
+        if exists('~/openrc'):
+            get('~/openrc', "./openrc")
         else:
             print (red("No openrc file, something went wrong! :("))
     print (green("Finished!"))

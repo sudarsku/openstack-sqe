@@ -523,7 +523,7 @@ def main():
                                 lab_id=lab_id)
         vm_xml = conf["params"]["aio-server"]["xml"].format(
             name=aio["name"],
-            ram=8*1024*1024,
+            ram=2*1024*1024,
             disk=disk,
             compute_server_cpu=compute_cpus,
             net_boot_name=conf["params"]["networks"][0]["name"],

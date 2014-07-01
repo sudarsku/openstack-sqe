@@ -10,7 +10,7 @@ from fabric.contrib.files import exists, contains, append, sed
 from fabric.colors import green, red, yellow
 
 from workarounds import fix_aio as fix
-from utils import collect_logs, dump, all_servers, quit_if_fail, warn_if_fail, update_time, resolve_names, CONFIG_PATH,\
+from utils import collect_logs, dump, all_servers, quit_if_fail, warn_if_fail, update_time, resolve_names, CONFIG_PATH, \
     LOGS_COPY, change_ip_to
 
 __author__ = 'sshnaidm'
@@ -60,18 +60,18 @@ def install_openstack(settings_dict, envs=None, verbose=None, prepare=False, for
                                   '-o Dpkg::Options::="--force-confdef" -o '
                                   'Dpkg::Options::="--force-confold" dist-upgrade'))
             warn_if_fail(run_func("apt-get install -y git"))
-            warn_if_fail(run_func("git config --global user.email 'test.node@example.com';"
-                                  "git config --global user.name 'Test Node'"))
+            warn_if_fail(run("git config --global user.email 'test.node@example.com';"
+                             "git config --global user.name 'Test Node'"))
             warn_if_fail(sed("/etc/hosts", "127.0.1.1.*",
-                                 "127.0.1.1 all-in-one all-in-one.domain.name", use_sudo=use_sudo_flag))
+                             "127.0.1.1 all-in-one all-in-one.domain.name", use_sudo=use_sudo_flag))
             warn_if_fail(put(StringIO("all-in-one"), "/etc/hostname", use_sudo=use_sudo_flag))
             warn_if_fail(run_func("hostname all-in-one"))
             if not force and prepare:
                 return True
             elif not force and not prepare:
-                warn_if_fail(run_func("git clone https://github.com/openstack-dev/devstack.git"))
+                warn_if_fail(run("git clone https://github.com/openstack-dev/devstack.git"))
                 with cd("devstack"):
-                    warn_if_fail(run_func("./stack.sh"))
+                    warn_if_fail(run("./stack.sh"))
             elif force:
                 shell_envs = ";".join(["export " + k + "=" + v for k, v in envs.iteritems()]) or ""
                 sudo_mode = "sudo " if use_sudo_flag else ''
@@ -99,10 +99,10 @@ def install_openstack(settings_dict, envs=None, verbose=None, prepare=False, for
                         sudo_mode=sudo_mode))
                     local('scp -Cp -o "ProxyCommand ssh {user}@{gateway} '
                           'nc {host} 22" {user}@{host}:~/openrc ./openrc'.format(
-                              user=settings_dict['user'],
-                              host=settings_dict['host_string'],
-                              gateway=settings_dict['gateway'],
-                          ))
+                        user=settings_dict['user'],
+                        host=settings_dict['host_string'],
+                        gateway=settings_dict['gateway'],
+                    ))
         if exists('~/openrc'):
             get('~/openrc', "./openrc")
         else:

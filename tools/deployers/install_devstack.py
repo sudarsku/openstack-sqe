@@ -25,6 +25,16 @@ LOGS_COPY = {
 }
 
 
+def make_local(path, filename, sudo):
+    conf = """[[local|localrc]]
+ADMIN_PASSWORD=secrete
+DATABASE_PASSWORD=$ADMIN_PASSWORD
+RABBIT_PASSWORD=$ADMIN_PASSWORD
+SERVICE_PASSWORD=$ADMIN_PASSWORD
+"""
+    fd = StringIO(conf)
+    warn_if_fail(put(fd, os.path.join(path, filename), use_sudo=sudo))
+
 def install_openstack(settings_dict, envs=None, verbose=None, prepare=False, force=False, proxy=None, config=None):
     """
     Install OS with COI with script provided by Chris on any host(s)
@@ -71,6 +81,7 @@ def install_openstack(settings_dict, envs=None, verbose=None, prepare=False, for
             elif not force and not prepare:
                 warn_if_fail(run("git clone https://github.com/openstack-dev/devstack.git"))
                 with cd("devstack"):
+                    make_local("./", "local.conf", False)
                     warn_if_fail(run("./stack.sh"))
             elif force:
                 shell_envs = ";".join(["export " + k + "=" + v for k, v in envs.iteritems()]) or ""

@@ -8,7 +8,7 @@ import re
 import time
 
 from fabric.api import sudo, settings, run, hide, put, shell_env, cd, get
-from fabric.contrib.files import exists, contains
+from fabric.contrib.files import exists, contains, sed
 from fabric.colors import green, red, yellow
 
 __author__ = 'sshnaidm'
@@ -267,10 +267,13 @@ def install_openstack(settings_dict,
                 with cd("/root"):
                     warn_if_fail(run_func("git clone -b icehouse "
                                           "https://github.com/CiscoSystems/puppet_openstack_builder"))
-                with cd("/root/puppet_openstack_builder"):
-                    run_func('git checkout i.0')
-                with cd("/root/puppet_openstack_builder/install-scripts"):
-                    warn_if_fail(run_func("./install.sh"))
+                with cd("puppet_openstack_builder"):
+                    ## run the latest, not i.0 release
+                    sed("/root/puppet_openstack_builder/install-scripts/cisco.install.sh",
+                        "icehouse/snapshots/i.0",
+                        "icehouse-proposed", use_sudo=use_sudo_flag)
+                    with cd("install-scripts"):
+                        warn_if_fail(run_func("./install.sh"))
                 fd = StringIO()
                 warn_if_fail(get("/etc/puppet/data/hiera_data/user.common.yaml", fd))
                 new_user_common = prepare2role(config, fd.getvalue())

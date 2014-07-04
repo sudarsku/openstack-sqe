@@ -6,10 +6,10 @@ RED=$(shell echo `tput bold``tput setaf 1`)
 RESET=$(shell echo `tput sgr0`)
 #WORKSPACE=$(shell echo ${WORKSPACE})
 ifndef LAB
-    LAB="lab1"
+	LAB="lab1"
 endif
 ifndef WORKSPACE
-    WORKSPACE=$$(pwd)"/.."
+	WORKSPACE=$$(pwd)"/.."
 endif
 
 
@@ -100,8 +100,8 @@ install-fullha-cobbler:
 	time $(PYTHON) ./tools/deployers/install_fullha.py -e -c config_file
 
 install-devstack:
-    @echo "$(CYAN)>>>> Installing Devstack...$(RESET)"
-    time $(PYTHON) ./tools/deployers/install_devstack.py -c config_file  -u localadmin -p ubuntu
+	@echo "$(CYAN)>>>> Installing Devstack...$(RESET)"
+	time $(PYTHON) ./tools/deployers/install_devstack.py -c config_file  -u localadmin -p ubuntu
 
 prepare-tempest:
 	@echo "$(CYAN)>>>> Preparing tempest...$(RESET)"

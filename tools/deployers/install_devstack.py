@@ -79,8 +79,9 @@ def install_openstack(settings_dict, envs=None, verbose=None, prepare=False, for
             if not force and prepare:
                 return True
             elif not force and not prepare:
-                warn_if_fail(run("git clone https://github.com/openstack-dev/devstack.git"))
-                with cd("devstack"):
+                with cd("~/"):
+                    warn_if_fail(run("git clone https://github.com/openstack-dev/devstack.git"))
+                with cd("~/devstack"):
                     make_local("~/devstack", "local.conf", False)
                     warn_if_fail(run("./stack.sh"))
             elif force:

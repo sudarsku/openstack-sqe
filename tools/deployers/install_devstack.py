@@ -81,7 +81,7 @@ def install_openstack(settings_dict, envs=None, verbose=None, prepare=False, for
             elif not force and not prepare:
                 warn_if_fail(run("git clone https://github.com/openstack-dev/devstack.git"))
                 with cd("devstack"):
-                    make_local("./", "local.conf", False)
+                    make_local("~/devstack", "local.conf", False)
                     warn_if_fail(run("./stack.sh"))
             elif force:
                 shell_envs = ";".join(["export " + k + "=" + v for k, v in envs.iteritems()]) or ""

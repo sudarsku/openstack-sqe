@@ -56,6 +56,7 @@ def install_openstack(settings_dict, envs=None, verbose=None, prepare=False, for
         run_func = run
 
     with settings(**settings_dict), hide(*verbose), shell_env(**envs):
+
         with cd("~/"):
             if proxy:
                 warn_if_fail(put(StringIO('Acquire::http::proxy "http://proxy.esl.cisco.com:8080/";'),

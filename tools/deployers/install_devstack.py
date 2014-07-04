@@ -171,7 +171,7 @@ def main():
         except IOError as e:
             print >> sys.stderr, "Not found file {file}: {exc}".format(file=opts.config_file, exc=e)
             sys.exit(1)
-        aio = config['servers']['aio-server']
+        aio = config['servers']['aio']
         hosts = [aio["ip"]]
         user = aio["user"]
         password = aio["password"]

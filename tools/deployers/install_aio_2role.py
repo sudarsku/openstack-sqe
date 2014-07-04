@@ -110,6 +110,7 @@ def prepare2role(config, common_file):
     conf['private_interface'] = "eth0"
     conf['install_drive'] = "/dev/vda"
     conf['ipv6_ra'] = 1
+    conf['packages'] = conf['packages'] + " radvd"
     return yaml.dump(conf)
 
 

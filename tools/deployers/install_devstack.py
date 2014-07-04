@@ -48,9 +48,7 @@ def install_openstack(settings_dict, envs=None, verbose=None, prepare=False, for
     """
     envs = envs or {}
     verbose = verbose or []
-    user = settings_dict['user']
-    home = "/home/{user}".format(user=user)
-    if user != 'root':
+    if settings_dict['user'] != 'root':
         use_sudo_flag = True
         run_func = sudo
     else:
@@ -81,10 +79,10 @@ def install_openstack(settings_dict, envs=None, verbose=None, prepare=False, for
             if not force and prepare:
                 return True
             elif not force and not prepare:
-                with cd(home):
+                with cd("~/"):
                     warn_if_fail(run("git clone https://github.com/openstack-dev/devstack.git"))
-                with cd(home + "/devstack"):
-                    make_local(home + "/devstack", "local.conf", False)
+                with cd("~/devstack"):
+                    make_local("~/devstack", "local.conf", False)
                     warn_if_fail(run("./stack.sh"))
             elif force:
                 shell_envs = ";".join(["export " + k + "=" + v for k, v in envs.iteritems()]) or ""
@@ -117,8 +115,8 @@ def install_openstack(settings_dict, envs=None, verbose=None, prepare=False, for
                         host=settings_dict['host_string'],
                         gateway=settings_dict['gateway'],
                     ))
-        if exists(home + '/devstack/openrc'):
-            get(home + '/devstack/openrc', "./openrc")
+        if exists('~/devstack/openrc'):
+            get('~/devstack/openrc', "./openrc")
         else:
             print (red("No openrc file, something went wrong! :("))
     print (green("Finished!"))
@@ -176,8 +174,8 @@ def main():
             sys.exit(1)
         aio = config['servers']['aio']
         hosts = [aio["ip"]]
-        user = aio["user"]
-        password = aio["password"]
+        user = opts.user
+        password = opts.password
         envs_aio = {"default_interface": aio["default_interface"],
                     "external_interface": aio["external_interface"]}
 

@@ -58,65 +58,63 @@ def install_openstack(settings_dict, envs=None, verbose=None, prepare=False, for
         run_func = run
 
     with settings(**settings_dict), hide(*verbose), shell_env(**envs):
-
-        with cd("~/"):
-            if proxy:
-                warn_if_fail(put(StringIO('Acquire::http::proxy "http://proxy.esl.cisco.com:8080/";'),
-                                 "/etc/apt/apt.conf.d/00proxy",
-                                 use_sudo=use_sudo_flag))
-                warn_if_fail(put(StringIO('Acquire::http::Pipeline-Depth "0";'),
-                                 "/etc/apt/apt.conf.d/00no_pipelining",
-                                 use_sudo=use_sudo_flag))
-            update_time(run_func)
-            warn_if_fail(run_func("apt-get update"))
-            warn_if_fail(run_func('DEBIAN_FRONTEND=noninteractive apt-get -y '
-                                  '-o Dpkg::Options::="--force-confdef" -o '
-                                  'Dpkg::Options::="--force-confold" dist-upgrade'))
-            warn_if_fail(run_func("apt-get install -y git"))
-            warn_if_fail(run("git config --global user.email 'test.node@example.com';"
-                             "git config --global user.name 'Test Node'"))
-            warn_if_fail(sed("/etc/hosts", "127.0.1.1.*",
-                             "127.0.1.1 all-in-one all-in-one.domain.name", use_sudo=use_sudo_flag))
-            warn_if_fail(put(StringIO("all-in-one"), "/etc/hostname", use_sudo=use_sudo_flag))
-            warn_if_fail(run_func("hostname all-in-one"))
-            if not force and prepare:
-                return True
-            elif not force and not prepare:
-                warn_if_fail(run("git clone https://github.com/openstack-dev/devstack.git"))
-                make_local("devstack/local.conf", False)
-                with cd("devstack"):
-                    warn_if_fail(run("./stack.sh"))
-            elif force:
-                shell_envs = ";".join(["export " + k + "=" + v for k, v in envs.iteritems()]) or ""
-                sudo_mode = "sudo " if use_sudo_flag else ''
-                if not settings_dict['gateway']:
-                    local("{shell_envs}; ssh -t -t -i {id_rsa} {user}@{host} \
-                     'git clone https://github.com/openstack-dev/devstack.git; cd devstack; ./stack.sh'".format(
-                        shell_envs=shell_envs,
-                        id_rsa=settings_dict['key_filename'],
-                        user=settings_dict['user'],
-                        host=settings_dict['host_string']))
-                    local("scp -i {id_rsa} {user}@{host}:~/openrc ./openrc".format(
-                        id_rsa=settings_dict['key_filename'],
-                        user=settings_dict['user'],
-                        host=settings_dict['host_string']))
-                else:
-                    local('ssh -t -t -i {id_rsa} {user}@{gateway} \
-                     "{shell_envs}; ssh -t -t -i {id_rsa} {user}@{host} \
-                     \'{sudo_mode}git clone https://github.com/openstack-dev/devstack.git;\
-                      cd devstack; ./stack.sh\'"'.format(
-                        shell_envs=shell_envs,
-                        id_rsa=settings_dict['key_filename'],
-                        user=settings_dict['user'],
-                        host=settings_dict['host_string'],
-                        gateway=settings_dict['gateway'],
-                        sudo_mode=sudo_mode))
-                    local('scp -Cp -o "ProxyCommand ssh {user}@{gateway} '
-                          'nc {host} 22" {user}@{host}:~/openrc ./openrc'.format(
-                        user=settings_dict['user'],
-                        host=settings_dict['host_string'],
-                        gateway=settings_dict['gateway'],
-                    ))
+        if proxy:
+            warn_if_fail(put(StringIO('Acquire::http::proxy "http://proxy.esl.cisco.com:8080/";'),
+                             "/etc/apt/apt.conf.d/00proxy",
+                             use_sudo=use_sudo_flag))
+            warn_if_fail(put(StringIO('Acquire::http::Pipeline-Depth "0";'),
+                             "/etc/apt/apt.conf.d/00no_pipelining",
+                             use_sudo=use_sudo_flag))
+        update_time(run_func)
+        warn_if_fail(run_func("apt-get update"))
+        warn_if_fail(run_func('DEBIAN_FRONTEND=noninteractive apt-get -y '
+                              '-o Dpkg::Options::="--force-confdef" -o '
+                              'Dpkg::Options::="--force-confold" dist-upgrade'))
+        warn_if_fail(run_func("apt-get install -y git"))
+        warn_if_fail(run("git config --global user.email 'test.node@example.com';"
+                         "git config --global user.name 'Test Node'"))
+        warn_if_fail(sed("/etc/hosts", "127.0.1.1.*",
+                         "127.0.1.1 all-in-one all-in-one.domain.name", use_sudo=use_sudo_flag))
+        warn_if_fail(put(StringIO("all-in-one"), "/etc/hostname", use_sudo=use_sudo_flag))
+        warn_if_fail(run_func("hostname all-in-one"))
+        if not force and prepare:
+            return True
+        elif not force and not prepare:
+            warn_if_fail(run("git clone https://github.com/openstack-dev/devstack.git"))
+            make_local("devstack/local.conf", False)
+            with cd("devstack"):
+                warn_if_fail(run("./stack.sh"))
+        elif force:
+            shell_envs = ";".join(["export " + k + "=" + v for k, v in envs.iteritems()]) or ""
+            sudo_mode = "sudo " if use_sudo_flag else ''
+            if not settings_dict['gateway']:
+                local("{shell_envs}; ssh -t -t -i {id_rsa} {user}@{host} \
+                 'git clone https://github.com/openstack-dev/devstack.git; cd devstack; ./stack.sh'".format(
+                    shell_envs=shell_envs,
+                    id_rsa=settings_dict['key_filename'],
+                    user=settings_dict['user'],
+                    host=settings_dict['host_string']))
+                local("scp -i {id_rsa} {user}@{host}:~/openrc ./openrc".format(
+                    id_rsa=settings_dict['key_filename'],
+                    user=settings_dict['user'],
+                    host=settings_dict['host_string']))
+            else:
+                local('ssh -t -t -i {id_rsa} {user}@{gateway} \
+                 "{shell_envs}; ssh -t -t -i {id_rsa} {user}@{host} \
+                 \'{sudo_mode}git clone https://github.com/openstack-dev/devstack.git;\
+                  cd devstack; ./stack.sh\'"'.format(
+                    shell_envs=shell_envs,
+                    id_rsa=settings_dict['key_filename'],
+                    user=settings_dict['user'],
+                    host=settings_dict['host_string'],
+                    gateway=settings_dict['gateway'],
+                    sudo_mode=sudo_mode))
+                local('scp -Cp -o "ProxyCommand ssh {user}@{gateway} '
+                      'nc {host} 22" {user}@{host}:~/openrc ./openrc'.format(
+                    user=settings_dict['user'],
+                    host=settings_dict['host_string'],
+                    gateway=settings_dict['gateway'],
+                ))
         if exists('~/devstack/openrc'):
             get('~/devstack/openrc', "./openrc")
         else:
